@@ -4,7 +4,8 @@
 %frequency over 2d grid defined by vectors x and y
 write_file = 0;
 save_m = 1;
-[X, Y] = meshgrid(-2540:1:2540,-2540:1:2540);   %in microns
+diffuser_size = 100;
+[X, Y] = meshgrid(-1*diffuser_size:1:diffuser_size,-1*diffuser_size:1:diffuser_size);   %in microns
 period = 18;                %microns
 nrows = size(X,1);
 ncols = size(X,2);

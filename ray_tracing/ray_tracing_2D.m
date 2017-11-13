@@ -1,6 +1,5 @@
 header;
 addpath ..;
-
 %% fix the random seed
 rand('state',2016);
 randn('state',2016);
@@ -21,12 +20,12 @@ randn('state',2016);
 % n=1, np=1.5
 
 lambda = 0.532;
-sensorpixel = 1;
+sensorpixel = 2;
 
 indexEnv = 1;
 indexDiff = 1.5;
 z0 = 1000;
-z1 = 50000;
+z1 = 1500;
 nstd = 1.15;
 fwhm_raw = 18;
 
@@ -36,13 +35,13 @@ fwhm_raw = 18;
 % Fresnel = (sigma*xpixel)^2./(z0*lambda);
 
 %% size of the object in number of voxels
-vx = 10;
-vy = 10;
+vx = 1;
+vy = 1;
 vz = 1;
 
 %% the voxel spec in the object space
-voxX = 10;
-voxY = 10;
+voxX = 150;
+voxY = 150;
 voxZ = 100;
 
 %% number of rays from the object
@@ -50,8 +49,8 @@ rays = 50000000;
 raysPerVoxel = round(rays./(vx*vy*vz));
 
 %% angle spread in degrees
-thetaSpread = 1;
-phiSpread = 1;
+thetaSpread = 0;
+phiSpread = 0;
 
 %% number of planes in z-direction for each voxel
 k = 1;
@@ -62,7 +61,8 @@ npx = 128;
 npy = 128;
 x_range = sensorpixel * npx;
 y_range = sensorpixel * npy;
-center = sensorpixel * npx / 2 - voxX * vx / 2;
+center = voxX * vx / 2;
+% center = 0;
 
 %% define x & theta grid
 % xsense = sensorrange * transpose(linspace(-1, 1, numberofsensorbins));
@@ -83,7 +83,7 @@ strength = 1;
 in = load('./Output/half_deg.mat');
 diffuser = in.filtered * strength;
 x = in.x; % diffuser coordinate system in physical units (um)
-x = x - min(x);
+% x = x - min(x);
 y = x;
 px = mean(diff(x)); % diffuser pixel size in physical units (um)
 [Fx, Fy] = gradient(diffuser);
@@ -133,12 +133,17 @@ for a = 1:vx
                 z = z1 + voxZ * (c-1) + dz * (j-1);
                 
                 % propagate rays to the diffuser
-                xo = z * tand(th) + xr + center;
-                yo = z * tand(ph) + yr + center;
+                xo = z * tand(th) + xr - center;
+                yo = z * tand(ph) + yr - center;
                 
                 % get diffuser gradient @ the ray-hitting positions
-                Fyr = interp2(x(1:ceil(max(xo))+5),y(1:ceil(max(yo))+5),Fy((1:ceil(max(yo))+5),(1:ceil(max(xo))+5)),xo,yo);
-                Fxr = interp2(x(1:ceil(max(xo))+5),y(1:ceil(max(yo))+5),Fx((1:ceil(max(yo))+5),(1:ceil(max(xo))+5)),xo,yo);
+                if x(1) < floor(min(xo))
+                    Fyr = interp2(x(ceil(length(x)/2)+floor(min(xo))-5:ceil(length(x)/2)+ceil(max(xo))+6),y(ceil(length(y)/2)+floor(min(yo))-5:ceil(length(y)/2)+ceil(max(yo))+6),Fy((ceil(length(y)/2)+floor(min(xo))-5:ceil(length(y)/2)+ceil(max(xo))+6),(ceil(length(y)/2)+floor(min(xo))-5:ceil(length(y)/2)+ceil(max(xo))+6)),xo,yo);
+                    Fxr = interp2(x(ceil(length(x)/2)+floor(min(xo))-5:ceil(length(x)/2)+ceil(max(xo))+6),y(ceil(length(y)/2)+floor(min(yo))-5:ceil(length(y)/2)+ceil(max(yo))+6),Fx((ceil(length(y)/2)+floor(min(xo))-5:ceil(length(y)/2)+ceil(max(xo))+6),(ceil(length(y)/2)+floor(min(xo))-5:ceil(length(y)/2)+ceil(max(xo))+6)),xo,yo);
+                else
+                    Fyr = interp2(x,y,Fy,xo,yo);
+                    Fxr = interp2(x,y,Fx,xo,yo);
+                end
                 
                 % throwing out points that did not hit the diffuser and could
                 % not be interpolated
@@ -159,7 +164,7 @@ for a = 1:vx
                 %create image at the sensor using 2D histogramming
                 dpx = x_range/npx;
                 dpy = y_range/npy;
-                gatherer = gatherer + hist4(xo,yo,npx,npy,dpx,dpy,0,0,px);
+                gatherer = gatherer + hist4(xo,yo,npx,npy,dpx,dpy,x_range/2,y_range/2,px);
                 %imagesc(gatherer);
                 %pause(1/24);
             end
