@@ -23,7 +23,7 @@ period_p = round(period/dx);  %width of gaussian
 dz = 1.15;
 seeds = randn(nrows,ncols)*dz;
 fsize = round(min(period_p*100,size(seeds,1)));
-K = fspecial('gaussian',fsize,period_p/2);
+K = fspecial('gaussian',fsize,period_p/2.355);
 K = K*sum(sum(K));
 
 %filtered = imfilter(seeds,K);
