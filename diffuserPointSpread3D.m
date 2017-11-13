@@ -12,8 +12,8 @@ voxZ = 100;
 rays = 10000000;
 
 %angle spread of rays, in degrees
-thetaSpread = 5;
-phiSpread = 5;
+thetaSpread = 5.00;
+phiSpread = 5.00;
 
 %define number of planes in z-direction for each voxel
 k = 1;
@@ -25,23 +25,23 @@ dz = voxZ/k;
 z0 = 100;
 
 %distance from diffuser to sensor, in microns
-z1 = 200;
+z1 = 600;
 
 %sensor dimensions
-npx = 50; %number of pixels in x-direction
-npy = 50; %number of pixels in y-direction
-x_range = 150; %total range of sensor in x-direction, in microns
-y_range = 150; %total range of sensor in y-direction, in microns
+npx = 512; %number of pixels in x-direction
+npy = 512; %number of pixels in y-direction
+x_range = 3072; %total range of sensor in x-direction, in microns
+y_range = 3072; %total range of sensor in y-direction, in microns
 
 %rays traced from each voxel
 raysPerVoxel = round(rays./(vx*vy*vz));
 
 %diffuser properties
-strength = 0;
+strength = 1;
 indexEnv = 1;
 indexDiff = 1.5;
 diff_upsample = false;
-in = load('../Output/diffuser.mat');
+in = load('../Output/half_deg.mat');
 diffuser_in = in.filtered * strength;
 
 %coordinate system in physical units from the diffuser file
@@ -72,7 +72,7 @@ for a = 1:vx
         for c = 1:vz
             gatherer = zeros(npy,npx);
             for j = 1:k
-                %random x, y, theta, and phi column vectors
+                %random x, y, theta, and phi column vectors (in microns)
                 xr = (rand(raysPerVoxel,1) + (a-1)) * voxX;
                 yr = (rand(raysPerVoxel,1) + (b-1)) * voxY;
                 th = (rand(raysPerVoxel,1) - 0.5) * thetaSpread;
@@ -82,8 +82,8 @@ for a = 1:vx
                 z = z0 + voxZ * (c-1) + dz * (j-1);
                 
                 %propagate rays to the diffuser
-                xo = z * tand(th) + xr + 25;
-                yo = z * tand(ph) + yr + 25;
+                xo = z * tand(th) + xr + 1664;
+                yo = z * tand(ph) + yr + 1664;
                 
                 Fyr = interp2(x(1:ceil(max(xo))+5),y(1:ceil(max(yo))+5),Fy((1:ceil(max(yo))+5),(1:ceil(max(xo))+5)),xo,yo);
                 Fxr = interp2(x(1:ceil(max(xo))+5),y(1:ceil(max(yo))+5),Fx((1:ceil(max(yo))+5),(1:ceil(max(xo))+5)),xo,yo);
@@ -116,7 +116,7 @@ for a = 1:vx
             
             %count to display progress to user
             count = count + 1;
-            [num2str(count) '/' num2str(vx*vy*vz)]
+            [num2str(count) '/' num2str(vx*vy*vz)];
         end
     end
 end
