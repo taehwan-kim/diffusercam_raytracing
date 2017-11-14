@@ -4,9 +4,9 @@
 %frequency over 2d grid defined by vectors x and y
 write_file = 0;
 save_m = 1;
-diffuser_size = 100;
+diffuser_size = 2540;
 [X, Y] = meshgrid(-1*diffuser_size:1:diffuser_size,-1*diffuser_size:1:diffuser_size);   %in microns
-period = 18;                %microns
+period = 140;                %microns
 nrows = size(X,1);
 ncols = size(X,2);
 fname = './Output/half_deg.mat';
@@ -20,7 +20,7 @@ period_p = round(period/dx);  %width of gaussian
 %amplitude of gaussian dtheta = delta_n*dz/dx
 %dz = delta_n*period_p/dtheta_max
 % dz = 0.3*dtheta_max*period_p/delta_n;
-dz = 1.15;
+dz = 200;
 seeds = randn(nrows,ncols)*dz;
 fsize = round(min(period_p*100,size(seeds,1)));
 K = fspecial('gaussian',fsize,period_p/2.355);

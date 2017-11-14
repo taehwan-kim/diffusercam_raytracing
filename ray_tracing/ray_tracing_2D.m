@@ -24,12 +24,12 @@ sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = 1000;
-z1 = (1:1:100);
-z1 = fliplr(z1);
-z1 = 1e-5*z1;
-z1 = round(1./z1);
-
+z0 = 9000;
+% z1 = (1:1:100);
+% z1 = fliplr(z1);
+% z1 = 1e-5*z1;
+% z1 = round(1./z1);
+z1 = 20000;
 nstd = 1.15;
 fwhm_raw = 18;
 
@@ -61,8 +61,8 @@ k = 1;
 dz = voxZ/k;
 
 %% sensor dimensions
-npx = 128;
-npy = 128;
+npx =1024;
+npy = 1024;
 x_range = sensorpixel * npx;
 y_range = sensorpixel * npy;
 center = voxX * vx / 2;
@@ -187,24 +187,24 @@ for zz = 1:length(z1)
     psfStack_linear(zz,:) = reshape(squeeze(psfStack(zz,:,:)),1,npx*npy);
 end
 
-anchor = 7;
-autocor = zeros(1,length(z1));
-for i=1:length(z1)
-    temp = corrcoef(psfStack_linear(anchor,:),psfStack_linear(i,:));
-    autocor(i) = temp(1,2);
-end
-plot(autocor);
+% anchor = 10;
+% autocor = zeros(1,length(z1));
+% for i=1:length(z1)
+%     temp = corrcoef(psfStack_linear(anchor,:),psfStack_linear(i,:));
+%     autocor(i) = temp(1,2);
+% end
+% plot(autocor);
 % figure();
 % subplot(3,1,1);
 % imagesc(squeeze(psfStack(1,:,:)));
 % colormap(cm_viridis);
 % colorbar;
 % subplot(3,1,2);
-% imagesc(squeeze(psfStack(2,:,:)));
+% imagesc(squeeze(psfStack(50,:,:)));
 % colormap(cm_viridis);
 % colorbar;
 % subplot(3,1,3);
-% imagesc(squeeze(psfStack(3,:,:)));
+% imagesc(squeeze(psfStack(100,:,:)));
 % colormap(cm_viridis);
 % colorbar;
 
