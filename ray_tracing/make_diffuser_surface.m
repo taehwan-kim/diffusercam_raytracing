@@ -6,21 +6,21 @@ write_file = 0;
 save_m = 1;
 diffuser_size = 2540;
 [X, Y] = meshgrid(-1*diffuser_size:1:diffuser_size,-1*diffuser_size:1:diffuser_size);   %in microns
-period = 140;                %microns
+period = 100;                %microns
 nrows = size(X,1);
 ncols = size(X,2);
 fname = './Output/half_deg.mat';
 if size(X)~=size(Y)
     error('X and Y must be same size')
 end
-delta_n = .5;
+delta_n = .7;
 dtheta_max = 1*pi/180;
 dx = mean(diff(X(1,:)));    
 period_p = round(period/dx);  %width of gaussian
 %amplitude of gaussian dtheta = delta_n*dz/dx
 %dz = delta_n*period_p/dtheta_max
 % dz = 0.3*dtheta_max*period_p/delta_n;
-dz = 200;
+dz = 120;
 seeds = randn(nrows,ncols)*dz;
 fsize = round(min(period_p*100,size(seeds,1)));
 K = fspecial('gaussian',fsize,period_p/2.355);
