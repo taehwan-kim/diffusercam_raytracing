@@ -196,19 +196,19 @@ end
 %     autocor(i) = temp(1,2);
 % end
 % plot(autocor);
-% figure();
-% subplot(3,1,1);
-% imagesc(squeeze(psfStack(1,:,:)));
-% colormap(cm_viridis);
-% colorbar;
-% subplot(3,1,2);
-% imagesc(squeeze(psfStack(50,:,:)));
-% colormap(cm_viridis);
-% colorbar;
-% subplot(3,1,3);
-% imagesc(squeeze(psfStack(100,:,:)));
-% colormap(cm_viridis);
-% colorbar;
+figure();
+subplot(3,1,1);
+imagesc(squeeze(psfStack(1,1,:,:)));
+colormap(cm_viridis);
+colorbar;
+subplot(3,1,2);
+imagesc(squeeze(psfStack(1,5,:,:)));
+colormap(cm_viridis);
+colorbar;
+subplot(3,1,3);
+imagesc(squeeze(psfStack(1,10,:,:)));
+colormap(cm_viridis);
+colorbar;
 
 % t1 = reshape(squeeze(psfStack(1,:,:)),1,npx*npy);
 % t2 = reshape(squeeze(psfStack(2,:,:)),1,npx*npy);
