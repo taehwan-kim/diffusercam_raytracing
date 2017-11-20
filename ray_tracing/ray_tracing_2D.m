@@ -24,11 +24,12 @@ sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = [5000 10000];
-z1 = (1:10:100);
+z0 = [5000 10000 20000 50000];
+z1 = (4:0.2:6);
 z1 = fliplr(z1);
 z1 = 1e-5*z1;
 z1 = round(1./z1);
+% z1 = [10000 16667 100000];
 % z1 = 10000;
 nstd = 1.15;
 fwhm_raw = 18;
@@ -123,7 +124,7 @@ psfStack_linear = zeros(length(z0), length(z1), npx*npy);
 %% accumulate the beam that falls into the sensor pixel
 
 count = 0;
-for zzz = 1:1
+for zzz = 1:length(z0)
     for zz = 1:length(z1)
         for a = 1:vx
             for b = 1:vy
@@ -196,19 +197,56 @@ end
 %     autocor(i) = temp(1,2);
 % end
 % plot(autocor);
-figure();
-subplot(3,1,1);
-imagesc(squeeze(psfStack(1,1,:,:)));
-colormap(cm_viridis);
-colorbar;
-subplot(3,1,2);
-imagesc(squeeze(psfStack(1,5,:,:)));
-colormap(cm_viridis);
-colorbar;
-subplot(3,1,3);
-imagesc(squeeze(psfStack(1,10,:,:)));
-colormap(cm_viridis);
-colorbar;
+%figure();
+%subplot(3,1,1);
+%imagesc(squeeze(psfStack(1,1,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+%subplot(3,1,2);
+%imagesc(squeeze(psfStack(1,5,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+%subplot(3,1,3);
+%imagesc(squeeze(psfStack(1,10,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+
+anchor = round(length(z1)/2);
+% anchor = length(z1);
+autocor = zeros(length(z0),length(z1));
+
+for j=1:length(z0)
+    for i=1:length(z1)
+        temp = corrcoef(psfStack_linear(j,anchor,:),psfStack_linear(j,i,:));
+        autocor(j,i) = temp(1,2);
+    end
+end
+
+figure(1);
+hold on;
+for j=1:length(z0)
+    plot(z1,autocor(j,:));
+end
+% 
+% figure();
+% imagesc(squeeze(psfStack(4,end,:,:)),[0 10]);
+% axis off;
+% set(gca,'Position',[0 0 1 1])
+
+% 
+% figure(2);
+% subplot(3,1,1);
+% imagesc(squeeze(psfStack(1,1,:,:)),[0 500]);
+% colormap(cm_viridis);
+% colorbar;
+% subplot(3,1,2);
+% imagesc(squeeze(psfStack(1,end/2,:,:)),[0 250]);
+% colormap(cm_viridis);
+% colorbar;
+% subplot(3,1,3);
+% imagesc(squeeze(psfStack(1,end,:,:)),[0 20]);
+% colormap(cm_viridis);
+% colorbar;
 
 % t1 = reshape(squeeze(psfStack(1,:,:)),1,npx*npy);
 % t2 = reshape(squeeze(psfStack(2,:,:)),1,npx*npy);
