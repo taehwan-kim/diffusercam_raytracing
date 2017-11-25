@@ -12,11 +12,14 @@ function [propagated, X, Y] = propagate_field(xi,eta,Ui,Z,lambda,varargin)
 %Outputs
 %propagated : output field
 %X and Y are output x and y grids 3d plaid
+
 if numel(varargin)==0
     phase_mask = ones(length(eta),length(xi));
 else
     phase_mask = varargin{1};
 end
+
+% phase_make = ones(length(eta),length(xi));
 
 k = 2*pi/lambda;
 [XI, ETA] = meshgrid(xi,eta);
@@ -29,6 +32,7 @@ y = fy*lambda*Z;
 quad_phase = exp(1i*k*Z)./(1i*lambda*Z).*exp(1i*k/2/Z*(X.^2+Y.^2));
 
 propagated = quad_phase.*fftshift(fft2(fftshift(kernel.*Ui.*phase_mask)));
+% propagated = Ui;
 
 
 

@@ -46,8 +46,8 @@ vy = 1;
 vz = 1;
 
 %% the voxel spec in the object space
-voxX = 1000;
-voxY = 1000;
+voxX = 100;
+voxY = 100;
 voxZ = 1;
 
 %% number of rays from the object
@@ -191,25 +191,23 @@ for zzz = 1:length(z0)
     end
 end
 
-x = linspace(-1*x_range/2, x_range/2, npx);
+anchor = round(length(z1)/2);
+% anchor = length(z1);
+autocor = zeros(length(z0),length(z1));
 
-% anchor = round(length(z1)/2);
-% % anchor = length(z1);
-% autocor = zeros(length(z0),length(z1));
+for j=1:length(z0)
+    for i=1:length(z1)
+        temp = corrcoef(psfStack_linear(j,anchor,:),psfStack_linear(j,i,:));
+        autocor(j,i) = temp(1,2);
+    end
+end
+
+figure(1);
+hold on;
+for j=1:length(z0)
+    plot(z1,autocor(j,:));
+end
 % 
-% for j=1:length(z0)
-%     for i=1:length(z1)
-%         temp = corrcoef(psfStack_linear(j,anchor,:),psfStack_linear(j,i,:));
-%         autocor(j,i) = temp(1,2);
-%     end
-% end
-% 
-% figure(1);
-% hold on;
-% for j=1:length(z0)
-%     plot(z1,autocor(j,:));
-% end
-% % 
 % figure();
 % imagesc(squeeze(psfStack(4,end,:,:)),[0 10]);
 % axis off;
