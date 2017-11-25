@@ -190,6 +190,27 @@ for zzz = 1:length(z0)
     end
 end
 
+% anchor = 10;
+% autocor = zeros(1,length(z1));
+% for i=1:length(z1)
+%     temp = corrcoef(psfStack_linear(anchor,:),psfStack_linear(i,:));
+%     autocor(i) = temp(1,2);
+% end
+% plot(autocor);
+%figure();
+%subplot(3,1,1);
+%imagesc(squeeze(psfStack(1,1,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+%subplot(3,1,2);
+%imagesc(squeeze(psfStack(1,5,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+%subplot(3,1,3);
+%imagesc(squeeze(psfStack(1,10,:,:)));
+%colormap(cm_viridis);
+%colorbar;
+
 anchor = round(length(z1)/2);
 % anchor = length(z1);
 autocor = zeros(length(z0),length(z1));
