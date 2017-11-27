@@ -19,18 +19,20 @@ randn('state',2016);
 % z0 = 648um
 % n=1, np=1.5
 
-lambda = 0.532; % in um
+lambda = linspace(0.4, 0.7, 16); % in um
+lambda_ref = 0.700;
 sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = 20000;
+z0 = 10000;
 % z1 = (4:0.2:6);
 % z1 = fliplr(z1);
 % z1 = 1e-5*z1;
 % z1 = round(1./z1);
 % z1 = [10000 16667 100000];
-z1 = 5000;
+% z1 = [16000 20000];
+z1 = 20000;
 % nstd = 1.15;
 % fwhm_raw = 18;
 
@@ -110,18 +112,33 @@ px = mean(diff(x)); % diffuser pixel size in physical units (um)
 % thetainmat = repelem(thetain, numberofxbins);
 
 %% modeling light field
+
 [xmesh, ymesh] = meshgrid(x,y);
-field = exp(1i*2*pi*(indexDiff-indexEnv)*diffuser/lambda);
-inputmask = exp(1i*2*pi*z0/lambda)/(1i*lambda*z0) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda*z0));
 
-[sensorplane, X, Y] = propagate_field(x, y, field, z1, lambda);
+for k = 1:length(lambda)
+    field = exp(1i*2*pi*(indexDiff-indexEnv)*diffuser/lambda);
+    inputmask = exp(1i*2*pi*z0/lambda)/(1i*lambda*z0) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda*z0));
 
-figure(1);
-imagesc(X(1,:),Y(:,1),abs(sensorplane).^2);
-axis([-1200 1200 -1200 1200]);
-figure(2);
-imagesc(phas(inputmask).^2);
-axis off;
+    [sensorplane, X, Y] = propagate_field(x, y, field, z1, lambda, lambda_ref, inputmask);
+
+    Xref = X*lambda_ref/lambda;
+    Yref = Y*lambda_ref/lambda;
+    sensorplane_ref = interp2(X,Y,sensorplane,Xref,Yref,'nearest');
+    I = I + abs(sensorplane).^2;
+end
+% figure(1);
+% imagesc(X(1,:),Y(:,1),abs(sensorplane).^2);
+% axis([-2000 2000 -2000 2000]);
+% colormap(cm_viridis);
+% colorbar;
+% figure(2);
+% imagesc(Xref(1,:),Yref(:,1),abs(sensorplane_ref).^2);
+% axis([-2000 2000 -2000 2000]);
+% colormap(cm_viridis);
+% colorbar;
+% figure(2);
+% imagesc(angle(inputmask));
+% axis off;
 % plane wave
 % inten_unit = zeros(numberofthetabins,1);
 % inten_unit((numberofthetabins+1)/2) = 1;

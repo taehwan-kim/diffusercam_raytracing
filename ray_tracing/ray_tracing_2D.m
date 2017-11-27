@@ -19,19 +19,19 @@ randn('state',2016);
 % z0 = 648um
 % n=1, np=1.5
 
-lambda = 0.532;
+lambda = 0.7;
 sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
 % z0 = [5000 10000 20000 50000];
-z0 = 5000;
+z0 =5000;
 % z1 = (4:0.2:6);
 % z1 = fliplr(z1);
 % z1 = 1e-5*z1;
 % z1 = round(1./z1);
 % z1 = [10000 16667 100000];
-z1 = 5000;
+z1 = 20000;
 nstd = 1.15;
 fwhm_raw = 18;
 
@@ -46,8 +46,8 @@ vy = 1;
 vz = 1;
 
 %% the voxel spec in the object space
-voxX = 1000;
-voxY = 1000;
+voxX = 1;
+voxY = 1;
 voxZ = 1;
 
 %% number of rays from the object
@@ -55,8 +55,8 @@ rays = 50000000;
 raysPerVoxel = round(rays./(vx*vy*vz));
 
 %% angle spread in degrees
-thetaSpread = 0;
-phiSpread = 0;
+thetaSpread = 20;
+phiSpread = 20;
 
 %% number of planes in z-direction for each voxel
 k = 1;
@@ -192,6 +192,9 @@ for zzz = 1:length(z0)
 end
 
 x = linspace(-1*x_range/2, x_range/2, npx);
+imagesc(x,x,squeeze(psfStack(1,1,:,:)),[0 500]);
+axis([-1500 1500 -1500 1500]);
+colormap(cm_viridis);
 % anchor = 10;
 % autocor = zeros(1,length(z1));
 % for i=1:length(z1)

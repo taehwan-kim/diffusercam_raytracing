@@ -4,9 +4,9 @@ vy = 1; %in y-direction
 vz = 1; %in z-direction
 
 %voxel dimensions in microns
-voxX = 10;
-voxY = 10;
-voxZ = 100;
+voxX = 1;
+voxY = 1;
+voxZ = 1;
 
 %total rays traced from entire object
 rays = 10000000;
