@@ -249,14 +249,18 @@ for j=1:length(z0)
     for i=1:length(z1)
         temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
         autocor(j,i) = temp(1,2);
+%         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+%         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
     end
 end
 
 figure(1);
 hold on;
 for j=1:length(z0)
-    plot(z1,autocor(j,:));
+    plot(z1-z1(anchor),autocor(j,:));
 end
+legend(string(F(1)),string(F(2)),string(F(3)),string(F(4)));
+
 % 
 % figure();
 % imagesc(squeeze(psfStack(4,end,:,:)),[0 10]);
