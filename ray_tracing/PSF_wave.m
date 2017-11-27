@@ -27,10 +27,10 @@ sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = [5000 10000 20000 50000];
+z0 = [5000 20000];
 F = 100^2./(0.550*z0);
 % z0 = [20000];
-z1 = (3:0.2:7);
+z1 = (3:4:7);
 z1 = fliplr(z1);
 z1 = 1e-5*z1;
 z1 = round(1./z1);
@@ -129,6 +129,7 @@ for zz = 1:length(z0)
         for k = 1:length(lambda)
             field = exp(1i*2*pi*(indexDiff-indexEnv)*diffuser/lambda(k));
             inputmask = exp(1i*2*pi*z1(zzz)/lambda(k))/(1i*lambda(k)*z1(zzz)) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda(k)*z1(zzz)));
+%             inputmask = ones(size(inputmask,1));
 
             [sensorplane, X, Y] = propagate_field(x, y, field, z0(zz), lambda(k), lambda_ref, inputmask);
 
@@ -259,7 +260,7 @@ hold on;
 for j=1:length(z0)
     plot(z1-z1(anchor),autocor(j,:));
 end
-legend(string(F(1)),string(F(2)),string(F(3)),string(F(4)));
+% legend(string(F(1)),string(F(2)),string(F(3)),string(F(4)));
 
 % 
 % figure();
