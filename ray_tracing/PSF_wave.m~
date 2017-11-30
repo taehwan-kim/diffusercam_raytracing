@@ -27,16 +27,17 @@ sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = [5000 30000];
+z0 = 5000;
 F = 100^2./(0.550*z0);
 % z0 = [20000];
-% z1 = (1:2:10);
+z1 = 10000*(1:2:10);
 % z1 = fliplr(z1);
 % z1 = 1e-5*z1;
 % z1 = round(1./z1);
+% z1 = [10000 20000 
 % z1 = [10000 16667 100000];
 % z1 = [16000 20000];
-z1 = 10000;
+% z1 = 10000;
 % nstd = 1.15;
 % fwhm_raw = 18;
 
@@ -158,15 +159,15 @@ for zz = 1:length(z0)
         corr1(zz,zzz,:) = r(2003,:);
     end
 end
-sensorsize = 5000;
-figure(1);
-imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze((I_sum(1,1,:,:))),[0 0.25*max(max(I_sum(1,1,:,:)))]);
-axis([-sensorsize sensorsize -sensorsize sensorsize]);
-colormap(flipud(gray));
-figure(2)
-imagesc(squeeze(Xref_rec(2,1,1,:)),squeeze(Yref_rec(2,1,:,1)),squeeze((I_sum(2,1,:,:))),[0 0.1*max(max(I_sum(1,1,:,:)))]);
-axis([-sensorsize sensorsize -sensorsize sensorsize]);
-colormap(flipud(gray));
+% sensorsize = 3000;
+% figure(1);
+% imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze((I_sum(1,1,:,:))),[0 0.25*max(max(I_sum(1,1,:,:)))]);
+% axis([-sensorsize sensorsize -sensorsize sensorsize]);
+% colormap(flipud(gray));
+% figure(2)
+% imagesc(squeeze(Xref_rec(2,1,1,:)),squeeze(Yref_rec(2,1,:,1)),squeeze((I_sum(2,1,:,:))),[0 0.1*max(max(I_sum(1,1,:,:)))]);
+% axis([-sensorsize sensorsize -sensorsize sensorsize]);
+% colormap(flipud(gray));
 
 
 % 
@@ -175,11 +176,11 @@ colormap(flipud(gray));
 % 
 % r = ifftshift(ifft2(abs(fft2(a,2*size(a,1),2*size(a,2))).^2));
 % corr1 = r(1001,:);
-figure(3);
-hold on;
-plot(squeeze(Xref_rec(1,1,1,:)),squeeze(corr1(1,1,1002:3002)));
-plot(squeeze((1/3)*Xref_rec(2,1,1,:)),squeeze(corr1(2,1,1002:3002)));
-xlim([-100 100]);
+% figure(3);
+% hold on;
+% plot(squeeze(Xref_rec(1,1,1,:)),squeeze(corr1(1,1,1002:3002)));
+% plot(squeeze((1/3)*Xref_rec(2,1,1,:)),squeeze(corr1(2,1,1002:3002)));
+% xlim([-100 100]);
 % imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(10*log10(I_sum(1,1,:,:))));
 % colormap(cm_viridis);
 % imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(I(1,1,:,:)),[0 1e-6]);
@@ -279,23 +280,44 @@ xlim([-100 100]);
 % end
 % 
 % anchor = round(length(z1)/2);
-% % anchor = length(z1);
-% autocor = zeros(length(z0),length(z1));
-% 
-% for j=1:length(z0)
-%     for i=1:length(z1)
-%         temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-%         autocor(j,i) = temp(1,2);
-% %         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-% %         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-%     end
-% end
-% 
-% figure(1);
-% hold on;
-% for j=1:length(z0)
-%     plot(z1-z1(anchor),autocor(j,:));
-% end
+% anchor = length(z1);
+figure(1);
+hold on;
+
+anchor = 1;
+autocor = zeros(length(z0),length(z1));
+
+for j=1:length(z0)
+    for i=1:length(z1)
+        temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+        autocor(j,i) = temp(1,2);
+%         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+%         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+    end
+end
+
+for j=1:length(z0)
+    plot(z1-z1(anchor),autocor(j,:));
+end
+
+anchor = length(z1);
+autocor = zeros(length(z0),length(z1));
+
+for j=1:length(z0)
+    for i=1:length(z1)
+        temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+        autocor(j,i) = temp(1,2);
+%         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+%         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+    end
+end
+
+for j=1:length(z0)
+    plot(z1(anchor)-z1,autocor(j,:));
+end
+
+legend(''
+
 % legend(string(F(1)),string(F(2)),string(F(3)),string(F(4)));
 
 
