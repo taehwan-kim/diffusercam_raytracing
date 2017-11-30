@@ -1,4 +1,4 @@
-function [propagated, X, Y] = propagate_field(xi,eta,Ui,Z,lambda, lambda_ref,varargin)
+function [propagated, X, Y] = propagate_field(xi,eta,Ui,Z,lambda,varargin)
 %apply basic Fresnel propagation
 %N. Antipa 9/2/2014 Berkeley-Waller group
 %Inputs

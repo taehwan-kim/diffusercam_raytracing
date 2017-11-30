@@ -18,16 +18,16 @@ randn('state',2016);
 % z0 = 648um
 % n=1, np=1.5
 
-% lambda = linspace(0.4, 0.7, 16); % in um
-lambda = 1.55;
+lambda = linspace(0.4, 0.7, 16); % in um
+% lambda = 1.55;
 % lambda = 0.4;
 % lambda = 0.7;
-lambda_ref = 1.55;
+lambda_ref = 0.7;
 sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = 100000;
+z0 = [5000 30000];
 F = 100^2./(0.550*z0);
 % z0 = [20000];
 % z1 = (1:2:10);
@@ -91,9 +91,9 @@ center = voxX * vx / 2;
 % yd = (y(1,2:end)-y(1,1:end-1))/(xpixel);
 % ydmat = repmat(yd',[numberofthetabins,1]);
 strength = 1;
-in = load('./Output/wavefront.mat');
-diffuser = in.filtered_padded * strength;
-x = in.xpad; % diffuser coordinate system in physical units (um)
+in = load('./Output/half_deg.mat');
+diffuser = in.filtered * strength;
+x = in.x; % diffuser coordinate system in physical units (um)
 % x = x - min(x);
 y = x;
 px = mean(diff(x)); % diffuser pixel size in physical units (um)
@@ -124,15 +124,22 @@ I_sum=zeros(length(z0),length(z1),size(xmesh,1),size(xmesh,2));
 Xref_rec=zeros(length(z0),length(z1),size(xmesh,1),size(xmesh,2));
 Yref_rec=zeros(length(z0),length(z1),size(xmesh,1),size(xmesh,2));
 
+corr1 = zeros(length(z0),length(z1),size(xmesh,1)*2);
+xoff = 0;
+
 for zz = 1:length(z0)
     for zzz=1:length(z1)
         for k = 1:length(lambda)
 %             field = exp(1i*diffuser);
 %             field = ones(size(diffuser,1));
-%             inputmask = exp(1i*2*pi*z1(zzz)/lambda(k))/(1i*lambda(k)*z1(zzz)) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda(k)*z1(zzz)));
+            field_temp = exp(1i*2*pi*(indexDiff-indexEnv)*diffuser/lambda(k));
+            field = zeros(size(field_temp,1));
+            ss = size(field_temp,1)-1;
+            field(ss/4:3*ss/4,ss/4:3*ss/4) = field_temp(ss/4:3*ss/4,ss/4:3*ss/4);
+            inputmask = exp(1i*2*pi*z1(zzz)/lambda(k))/(1i*lambda(k)*z1(zzz)) * exp(1i*pi*((xmesh-xoff).^2+ymesh.^2)/(lambda(k)*z1(zzz)));
 %             inputmask = ones(size(inputmask,1));
 
-            [sensorplane, X, Y] = propagate_field(x, y, diffuser, z0(zz), lambda(k), lambda_ref);
+            [sensorplane, X, Y] = propagate_field(x, y, field, z0(zz), lambda(k), inputmask);
 
             Xref = X*lambda_ref/lambda(k);
             Yref = Y*lambda_ref/lambda(k);
@@ -144,12 +151,37 @@ for zz = 1:length(z0)
             Yref_rec(zz,zzz,:,:) = Yref;
         end
         I_sum(zz,zzz,:,:) = sum(I(zz,zzz,:,:,:),3);
+        a = squeeze(I_sum(zz,zzz,:,:));
+        a = a/norm(a,'fro');
+
+        r = ifftshift(ifft2(abs(fft2(a,2*size(a,1),2*size(a,2))).^2));
+        corr1(zz,zzz,:) = r(2003,:);
     end
 end
-imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze((I_sum(1,1,:,:))));
+sensorsize = 3000;
+figure(1);
+imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze((I_sum(1,1,:,:))),[0 0.25*max(max(I_sum(1,1,:,:)))]);
+axis([-sensorsize sensorsize -sensorsize sensorsize]);
+colormap(flipud(gray));
+figure(2)
+imagesc(squeeze(Xref_rec(2,1,1,:)),squeeze(Yref_rec(2,1,:,1)),squeeze((I_sum(2,1,:,:))),[0 0.1*max(max(I_sum(1,1,:,:)))]);
+axis([-sensorsize sensorsize -sensorsize sensorsize]);
+colormap(flipud(gray));
 
+
+% 
+% a = squeeze(I_sum(1,1,:,:));
+% a = a/norm(a,'fro');
+% 
+% r = ifftshift(ifft2(abs(fft2(a,2*size(a,1),2*size(a,2))).^2));
+% corr1 = r(1001,:);
+figure(3);
+hold on;
+plot(squeeze(Xref_rec(1,1,1,:)),squeeze(corr1(1,1,1002:3002)));
+plot(squeeze((1/3)*Xref_rec(2,1,1,:)),squeeze(corr1(2,1,1002:3002)));
+xlim([-100 100]);
 % imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(10*log10(I_sum(1,1,:,:))));
-colormap(cm_viridis);
+% colormap(cm_viridis);
 % imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(I(1,1,:,:)),[0 1e-6]);
 % figure(1);
 % imagesc(Xref(1,:),Yref(:,1),squeeze(I(1,:,:)),[0 1e-6]);

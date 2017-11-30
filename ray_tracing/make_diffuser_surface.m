@@ -4,7 +4,7 @@
 %frequency over 2d grid defined by vectors x and y
 write_file = 0;
 save_m = 1;
-diffuser_size = 500;
+diffuser_size = 1000;
 [X, Y] = meshgrid(-1*diffuser_size:1:diffuser_size,-1*diffuser_size:1:diffuser_size);   %in microns
 period = 100;                %microns
 nrows = size(X,1);
@@ -28,6 +28,9 @@ K = K*sum(sum(K));
 
 %filtered = imfilter(seeds,K);
 filtered = ifft2(fft2(K,size(seeds,1),size(seeds,2)).*(fft2(seeds)));
+% filtered = zeros(size(filtered_temp,1));
+% ss = size(filtered_temp,1)-1;
+% filtered(ss/4:3*ss/4,ss/4:3*ss/4) = filtered_temp(ss/4:3*ss/4,ss/4:3*ss/4);
 %[Fx Fy] = gradient(filtered)*;
 Fx = zeros(size(filtered));
 Fy = Fx;
