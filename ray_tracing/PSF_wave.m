@@ -12,31 +12,31 @@ randn('state',2016);
 % distance btw object & diffuser: z1
 % diffuser height std dev.: nstd
 % diffuser kernel FWHM: fwhm in the number of pixels
-
 % in Nick's ICCP paper:
 % ? = 18?m, with rms surface height of 1.15?m
 % pixel pitch: 6.5um
 % z0 = 648um
 % n=1, np=1.5
 
-lambda = linspace(0.4, 0.7, 16); % in um
+% lambda = linspace(0.4, 0.7, 16); % in um
+lambda = 1.55;
 % lambda = 0.4;
 % lambda = 0.7;
-lambda_ref = 0.700;
+lambda_ref = 1.55;
 sensorpixel = 6.5;
 
 indexEnv = 1;
 indexDiff = 1.5;
-z0 = [5000 20000];
+z0 = 100000;
 F = 100^2./(0.550*z0);
 % z0 = [20000];
-z1 = (3:4:7);
-z1 = fliplr(z1);
-z1 = 1e-5*z1;
-z1 = round(1./z1);
+% z1 = (1:2:10);
+% z1 = fliplr(z1);
+% z1 = 1e-5*z1;
+% z1 = round(1./z1);
 % z1 = [10000 16667 100000];
 % z1 = [16000 20000];
-% z1 = 20000;
+z1 = 10000;
 % nstd = 1.15;
 % fwhm_raw = 18;
 
@@ -91,9 +91,9 @@ center = voxX * vx / 2;
 % yd = (y(1,2:end)-y(1,1:end-1))/(xpixel);
 % ydmat = repmat(yd',[numberofthetabins,1]);
 strength = 1;
-in = load('./Output/half_deg.mat');
-diffuser = in.filtered * strength;
-x = in.x; % diffuser coordinate system in physical units (um)
+in = load('./Output/wavefront.mat');
+diffuser = in.filtered_padded * strength;
+x = in.xpad; % diffuser coordinate system in physical units (um)
 % x = x - min(x);
 y = x;
 px = mean(diff(x)); % diffuser pixel size in physical units (um)
@@ -127,11 +127,12 @@ Yref_rec=zeros(length(z0),length(z1),size(xmesh,1),size(xmesh,2));
 for zz = 1:length(z0)
     for zzz=1:length(z1)
         for k = 1:length(lambda)
-            field = exp(1i*2*pi*(indexDiff-indexEnv)*diffuser/lambda(k));
-            inputmask = exp(1i*2*pi*z1(zzz)/lambda(k))/(1i*lambda(k)*z1(zzz)) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda(k)*z1(zzz)));
+%             field = exp(1i*diffuser);
+%             field = ones(size(diffuser,1));
+%             inputmask = exp(1i*2*pi*z1(zzz)/lambda(k))/(1i*lambda(k)*z1(zzz)) * exp(1i*pi*(xmesh.^2+ymesh.^2)/(lambda(k)*z1(zzz)));
 %             inputmask = ones(size(inputmask,1));
 
-            [sensorplane, X, Y] = propagate_field(x, y, field, z0(zz), lambda(k), lambda_ref, inputmask);
+            [sensorplane, X, Y] = propagate_field(x, y, diffuser, z0(zz), lambda(k), lambda_ref);
 
             Xref = X*lambda_ref/lambda(k);
             Yref = Y*lambda_ref/lambda(k);
@@ -145,7 +146,10 @@ for zz = 1:length(z0)
         I_sum(zz,zzz,:,:) = sum(I(zz,zzz,:,:,:),3);
     end
 end
+imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze((I_sum(1,1,:,:))));
 
+% imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(10*log10(I_sum(1,1,:,:))));
+colormap(cm_viridis);
 % imagesc(squeeze(Xref_rec(1,1,1,:)),squeeze(Yref_rec(1,1,:,1)),squeeze(I(1,1,:,:)),[0 1e-6]);
 % figure(1);
 % imagesc(Xref(1,:),Yref(:,1),squeeze(I(1,:,:)),[0 1e-6]);
@@ -242,25 +246,26 @@ end
 %     end
 % end
 % 
-anchor = round(length(z1)/2);
-% anchor = length(z1);
-autocor = zeros(length(z0),length(z1));
-
-for j=1:length(z0)
-    for i=1:length(z1)
-        temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-        autocor(j,i) = temp(1,2);
-%         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-%         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
-    end
-end
-
-figure(1);
-hold on;
-for j=1:length(z0)
-    plot(z1-z1(anchor),autocor(j,:));
-end
+% anchor = round(length(z1)/2);
+% % anchor = length(z1);
+% autocor = zeros(length(z0),length(z1));
+% 
+% for j=1:length(z0)
+%     for i=1:length(z1)
+%         temp = corrcoef(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2),reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+%         autocor(j,i) = temp(1,2);
+% %         temp=sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,i,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+% %         autocor(j,i)=temp/sum(reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2).*reshape(squeeze(I_sum(j,anchor,:,:)),1,size(I_sum(j,anchor,:,:),3)^2));
+%     end
+% end
+% 
+% figure(1);
+% hold on;
+% for j=1:length(z0)
+%     plot(z1-z1(anchor),autocor(j,:));
+% end
 % legend(string(F(1)),string(F(2)),string(F(3)),string(F(4)));
+
 
 % 
 % figure();

@@ -4,33 +4,45 @@
 %frequency over 2d grid defined by vectors x and y
 write_file = 0;
 save_m = 1;
-[X, Y] = meshgrid(-500:1:500,-500:1:500);   %in microns
+pads = 2;
+[X, Y] = meshgrid(-500:5:500,-500:5:500);   %in microns
+xpad = ((2*pads+1)*-500-12:1:(2*pads+1)*500+12);   %in microns
 period = 18;                %microns
 nrows = size(X,1);
 ncols = size(X,2);
-fname = './Output/flat.mat';
+fname = './Output/wavefront.mat';
 if size(X)~=size(Y)
     error('X and Y must be same size')
 end
-delta_n = .5;
-dtheta_max = 1*pi/180;
-dx = mean(diff(X(1,:)));    
-period_p = round(period/dx);  %width of gaussian
+% delta_n = .5;
+% dtheta_max = 1*pi/180;
+% dx = mean(diff(X(1,:)));    
+% period_p = round(period/dx);  %width of gaussian
 %amplitude of gaussian dtheta = delta_n*dz/dx
 %dz = delta_n*period_p/dtheta_max
 % dz = 0.3*dtheta_max*period_p/delta_n;
-dz = 1.15;
-seeds = randn(nrows,ncols)*dz;
-fsize = round(min(period_p*100,size(seeds,1)));
-K = fspecial('gaussian',fsize,period_p/2);
-K = K*sum(sum(K));
+% dz = 1.15;
+% seeds = randn(nrows,ncols)*dz;
+% fsize = round(min(period_p*100,size(seeds,1)));
+% K = fspecial('gaussian',fsize,period_p/2);
+% K = K*sum(sum(K));
+% filtered=zeros(size(X,1));
+% filtered_exp = repmat(linspace(0,2*pi,size(X,1)),[size(X,1),1]);
+
+filtered_x = upsample(exp(1i*linspace(0,2*pi,size(X,1))),5,2);
+filtered_x = cat(1,zeros(2,length(filtered_x)),filtered_x,zeros(2,length(filtered_x)));
+filtered = repmat(filtered_x,[size(X,1),1]);
+% filtered_exp = filtered_exp(1:end-4)
+
+% filtered = upsample(exp(1i*filtered_exp),5);
+filtered_padded = padarray(filtered, [pads*(size(filtered,1)) pads*(size(filtered,1))], 0,'both');
 
 %filtered = imfilter(seeds,K);
-filtered = ifft2(fft2(K,size(seeds,1),size(seeds,2)).*(fft2(seeds)));
+% filtered = ifft2(fft2(K,size(seeds,1),size(seeds,2)).*(fft2(seeds)));
 %[Fx Fy] = gradient(filtered)*;
-Fx = zeros(size(filtered));
-Fy = Fx;
-Fxy = Fx;
+% Fx = zeros(size(filtered));
+% Fy = Fx;
+% Fxy = Fx;
 if write_file
     %[Fxx Fxy] =gradient(Fx);
     fid = fopen('diffuser_high.DAT','w')
@@ -43,7 +55,7 @@ if write_file
 end
 if save_m
     x = X(1,:);
-    save(fname,'x','filtered')
+    save(fname,'xpad','filtered_padded')
 end
 %%
 %Trace ray
